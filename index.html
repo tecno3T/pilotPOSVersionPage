@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabela de Versões de POS Tecno3 - Edição</title>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #333;
+        color: #f4f4f9;
+        margin: 0;
+        padding: 20px;
+    }
+    h1 {
+        text-align: center;
+        color: #4a90e2;
+        margin-bottom: 20px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+    th, td {
+        padding: 15px;
+        text-align: left;
+        border: 1px solid #555;
+        transition: background-color 0.3s;
+    }
+    th {
+        background-color: #4a90e2;
+        color: white;
+        font-weight: bold;
+    }
+    .version-code {
+        width: 50px;
+    }
+    tr:nth-child(even) {
+        background-color: #444;
+    }
+   tr:hover {
+            background-color: #FFD700;
+            color: #000;
+        }
+    .status {
+        font-weight: bold;
+    }
+    .edit-container {
+        margin: 20px 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .edit-input {
+        padding: 10px;
+        width: 300px;
+        margin-right: 10px;
+        border: 1px solid #555;
+        border-radius: 5px;
+        background-color: #444;
+        color: white;
+    }
+    .edit-button, .confirm-button, .download-button {
+        padding: 10px 15px;
+        border: none;
+        color: white;
+        cursor: pointer;
+        margin-right: 10px;
+        border-radius: 5px;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+    .edit-button {
+        background-color: #4a90e2;
+    }
+    .edit-button:hover {
+        background-color: #357ABD;
+        transform: translateY(-2px);
+    }
+    .confirm-button {
+        background-color: #27ae60;
+        display: none;
+    }
+    .confirm-button:hover {
+        background-color: #219653;
+        transform: translateY(-2px);
+    }
+    .download-button {
+        background-color: #e67e22;
+        display: none;
+    }
+    .download-button:hover {
+        background-color: #d76d22;
+        transform: translateY(-2px);
+    }
+    .date-input {
+        display: none;
+    }
+
+    textarea {
+        width: 100%;
+        height: 60px;
+        padding: 10px;
+        border: 1px solid #555;
+        border-radius: 5px;
+        resize: vertical;
+        background-color: #444;
+        color: white;
+    }
+         a {
+            color: #87CEEB;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #4682B4;
+        }
+
+    </style>
+
+    <script>
+        function editTable() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === 'tecno3@2024') {
+                const rows = document.querySelectorAll('tr.editable');
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    cells.forEach((cell, index) => {
+                        if (index === 3) {
+                            const select = document.createElement('select');
+                            select.innerHTML = `
+                                <option value="nao_publicado">📅 Ainda não publicado</option>
+                                <option value="data">Selecione uma data</option>
+                            `;
+                            const inputDate = document.createElement('input');
+                            inputDate.type = 'date';
+                            inputDate.className = 'date-input';
+
+                            select.addEventListener('change', function() {
+                                if (this.value === 'data') {
+                                    inputDate.style.display = 'inline-block';
+                                } else {
+                                    inputDate.style.display = 'none';
+                                }
+                            });
+
+                            cell.innerHTML = '';
+                            cell.appendChild(select);
+                            cell.appendChild(inputDate);
+                        } else if (index === 4) { // A coluna do Status de Rollout
+                            const statusSelect = document.createElement('select');
+                            statusSelect.innerHTML = `
+                                <option value="aprovado">✅ Pronto para Pilotar</option>
+                                <option value="reprovado">❌ Reprovado pela loja</option>
+                                <option value="aguardando">🚧 Aguardando aprovação</option>
+                                <option value="nao_publicado">📅 Ainda não publicado</option>
+                                <option value="nao_publicado">✅ APK gerada</option>
+                                <option value="nao_publicado">❌ APK não gerada</option>
+                            `;
+                            cell.innerHTML = '';
+                            cell.appendChild(statusSelect);
+                        } else if (index === 5) { // A coluna da Descrição
+                            const textarea = document.createElement('textarea');
+                            textarea.value = cell.innerText;
+                            cell.innerHTML = '';
+                            cell.appendChild(textarea);
+                        } else {
+                            const input = document.createElement('input');
+                            input.value = cell.innerText;
+                            cell.innerHTML = '';
+                            cell.appendChild(input);
+                        }
+                    });
+                });
+                document.getElementById('confirmButton').style.display = 'block';
+            } else {
+                alert('Senha incorreta!');
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        function confirmEdit() {
+            const rows = document.querySelectorAll('tr.editable');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                cells.forEach((cell, index) => {
+                    if (index === 3) {
+                        const select = cell.querySelector('select');
+                        const inputDate = cell.querySelector('input[type="date"]');
+                        if (select.value === 'nao_publicado') {
+                            cell.innerText = '📅 Ainda não publicado';
+                        } else {
+                            const formattedDate = formatDate(inputDate.value);
+                            cell.innerText = formattedDate;
+                        }
+                    } else if (index === 4) {
+                        const statusSelect = cell.querySelector('select');
+                        cell.innerText = statusSelect.options[statusSelect.selectedIndex].text;
+                    } else if (index === 5) {
+                        const textarea = cell.querySelector('textarea');
+                        if (textarea) {
+                            cell.innerText = textarea.value; // Pega o valor do textarea
+                        }
+                    } else {
+                        const input = cell.querySelector('input');
+                        if (input) {
+                            cell.innerText = input.value;
+                        }
+                    }
+                });
+            });
+            alert('Edições salvas!');
+            document.getElementById('downloadButton').style.display = 'block';
+        }
+
+        function downloadTable() {
+            const tableHTML = document.querySelector('table').outerHTML;
+            const styles = document.querySelector('style').outerHTML;
+            const scripts = document.querySelector('script').outerHTML;
+
+            const html = `
+                <html>
+                <head>
+                    ${styles}
+                </head>
+                <body>
+                    <h1>Tecno3 - Tabela de Versões de POS</h1>
+                    <div class="edit-container">
+                        <input type="password" id="adminPassword" class="edit-input" placeholder="Senha Admin">
+                        <button class="edit-button" onclick="editTable()">Editar</button>
+                        <button id="confirmButton" class="confirm-button" onclick="confirmEdit()">Confirmar Edição</button>
+                        <button id="downloadButton" class="download-button" onclick="downloadTable()">Baixar HTML</button>
+                    </div>
+                    ${tableHTML}
+                    ${scripts}
+                </body>
+                </html>
+            `;
+            const blob = new Blob([html], { type: 'text/html' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'tabela_editada.html';
+            link.click(); // Simula o clique no link para iniciar o download
+        }
+
+
+    </script>
+</head>
+<body>
+
+<h1>Tecno3 - Tabela de Versões de POS</h1>
+<div class="edit-container">
+    <input type="password" id="adminPassword" class="edit-input" placeholder="Senha Admin">
+    <button class="edit-button" onclick="editTable()">Editar</button>
+    <button id="confirmButton" class="confirm-button" onclick="confirmEdit()">Confirmar Edição
+    </button>
+    <button id="downloadButton" class="download-button" onclick="downloadTable()">Baixar HTML
+    </button>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>Versão</th>
+        <th>Versão Atualizada</th>
+        <th>Version Code</th>
+        <th>Data de Publicação</th>
+        <th>Status do Piloto</th>
+        <th>Descrição</th>
+        <th>Link</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr class="editable">
+        <td>Celular</td>
+        <td>5.0.6</td>
+        <td>42</td>
+        <td>19/09/2024</td>
+        <td class="status">✅ APK gerada</td>
+        <td>- Novo dashboard de vendas.<br>
+            - Ocultar formas de pagamentos Banrisul e VeroWallet, caso não for Vero.</td>
+        <td><a href="https://drive.google.com/file/d/1iqKclAJIpeIshpwQhlL91GCr_C16kQTT/view?usp=sharing" target="_blank">Link Download</a></td>
+    </tr>
+    <tr class="editable">
+        <td>Cielo</td>
+        <td>5.0.8</td>
+        <td>44</td>
+        <td>26/09/2024</td>
+        <td class="status">🚧 Aguardando aprovação</td>
+        <td> - Novo dashboard de vendas.<br>
+            - Ocultar formas de pagamentos Banrisul e VeroWallet, caso não for Vero.</td>
+        <td><a href="https://www.cieloliostore.com.br/public-store/app-detail?id=bea9ec4e-3a07-4a41-9c7a-717a17fd079e" target="_blank">Link Loja</a></td>
+    </tr>
+    <tr class="editable">
+        <td>PagSeguro</td>
+        <td>5.0.6</td>
+        <td>42</td>
+        <td>19/09/2024</td>
+        <td class="status">✅ Pronto para Pilotar</td>
+        <td>- Novo dashboard de vendas.<br>
+            - Ocultar formas de pagamentos Banrisul e VeroWallet, caso não for Vero.</td>
+        <td><a href="https://loja.apps.pagseguro.uol.com.br/developer/#/application/1601173740060707?YnJlYWRjcnVtYj0lNUIlN0IlMjJwYXRobmFtZSUyMiUzQSUyMiUyRmhvbWUlMjIlMkMlMjJsYWJlbCUyMiUzQSUyMmxhYmVsX2hvbWUlMjIlN0QlMkMlN0IlMjJwYXRobmFtZSUyMiUzQSUyMiUyRmFwcGxpY2F0aW9ucyUyMiUyQyUyMmxhYmVsJTIyJTNBJTIybGFiZWxfYXBwX2xpc3QlMjIlMkMlMjJxdWVyeSUyMiUzQSU3QiUyMnR5cGUlMjIlM0ElMjJHJTIyJTdEJTdEJTVE" target="_blank">Link Loja</a></td>
+    </tr>
+    <tr class="editable">
+        <td>Stone</td>
+        <td>5.0.7</td>
+        <td>43</td>
+        <td>23/09/2024</td>
+        <td class="status">✅ Pronto para Pilotar</td>
+        <td>- Novo dashboard de vendas.<br>
+            - Ocultar formas de pagamentos Banrisul e VeroWallet, caso não for Vero.</td>
+        <td><a href="https://partnerhub.stone.com.br/#/application" target="_blank">Link Loja</a></td>
+    </tr>
+    <tr class="editable">
+        <td>Vero</td>
+        <td>5.0.7</td>
+        <td>43</td>
+        <td>23/09/2024</td>
+        <td class="status">✅ Pronto para Pilotar</td>
+        <td>- Novo dashboard de vendas.<br>
+            - Ocultar formas de pagamentos Banrisul e VeroWallet, caso não for Vero.</td>
+        <td><a href="https://www.verostore.com.br/index.aspx#!/edit/2274" target="_blank">Link Loja</a></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
